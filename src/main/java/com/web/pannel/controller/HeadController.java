@@ -7,36 +7,33 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.web.pannel.service.IUser;
+import com.web.pannel.service.IMenuHeader;
 import com.web.pannel.util.ResponseModel;
 
-
 @RestController
-public class UserController {
+public class HeadController {
 	@Autowired
-	IUser authenticationService;
+	IMenuHeader headerService;
 
 
 
-	@RequestMapping(value = "/manageUser", method = RequestMethod.POST)
-	public ResponseModel createUser(@RequestBody String input ,@RequestHeader(name="Authorization") String token) throws Exception {
-		return authenticationService.register(input,token);
+	@RequestMapping(value = "/head/manage", method = RequestMethod.POST)
+	public ResponseModel manageHead(@RequestBody String input ,@RequestHeader(name="Authorization") String token) throws Exception {
+		return headerService.manage_header(input,token);
 	}
 	
-	@RequestMapping(value = "/getAllUser", method = RequestMethod.GET)
+	@RequestMapping(value = "/head/getAll", method = RequestMethod.GET)
 	public ResponseModel getAll(@RequestHeader(name="Authorization") String token) throws Exception {
-		return authenticationService.getAll();
+		return headerService.getAll(token);
 	}
 	
-	@RequestMapping(value = "/getById", method = RequestMethod.POST)
+	@RequestMapping(value = "/head/getById", method = RequestMethod.POST)
 	public ResponseModel getById(@RequestBody String input ,@RequestHeader(name="Authorization") String token) throws Exception {
-		return authenticationService.getById(input,token);
+		return headerService.getById(input,token);
 	}
 	
-	@RequestMapping(value = "/getByName", method = RequestMethod.POST)
+	@RequestMapping(value = "/head/getByName", method = RequestMethod.POST)
 	public ResponseModel getByName(@RequestBody String input ,@RequestHeader(name="Authorization") String token) throws Exception {
-		return authenticationService.getByName(input,token);
+		return headerService.getByName(input,token);
 	}
-
 }
-

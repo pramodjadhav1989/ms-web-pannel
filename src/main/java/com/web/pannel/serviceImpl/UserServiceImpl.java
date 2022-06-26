@@ -1,34 +1,21 @@
 package com.web.pannel.serviceImpl;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import com.web.pannel.constant.IAppConstant;
 import com.web.pannel.constant.IDatabaseConstant;
 import com.web.pannel.constant.IErrorConstant;
 import com.web.pannel.dto.AppDTO;
-import com.web.pannel.service.ICategory;
 import com.web.pannel.service.IUser;
-import com.web.pannel.util.JwtTokenUtil;
 import com.web.pannel.util.MyObjectMapper;
 import com.web.pannel.util.ResponseModel;
-import com.web.pannel.util.Security;
+import com.web.pannel.util.Util;
 import com.web.pannel.util.Validation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -41,20 +28,9 @@ public class UserServiceImpl implements IAppConstant, IErrorConstant, IUser, IDa
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
-	@Autowired
-	private AuthenticationManager authenticationManager;
-	@Autowired
-	private JwtTokenUtil jwtTokenUtil;
 
-	@Autowired
-	private Security security;
-
-	
-	
-
-	
 	@Override
-	public ResponseModel register(String input) {
+	public ResponseModel register(String input,String userdetails) {
 		ResponseModel responseModel = ResponseModel.getInstance();
 		try {
 			String userid = null;
@@ -77,12 +53,13 @@ public class UserServiceImpl implements IAppConstant, IErrorConstant, IUser, IDa
 			password = result.containsKey("password") ? result.get("password").toString() : null;
 			name = result.containsKey("name") ? result.get("name").toString() : null;
 			email = result.containsKey("email") ? result.get("email").toString() : "";
-			createdBy = result.containsKey("createdBy") ? result.get("createdBy").toString() : "";
 			senior = result.containsKey("senior") ? result.get("senior").toString() : "";
 			cat_code = result.containsKey("cat_code") ? result.get("cat_code").toString() : "";
 			division = result.containsKey("division") ? result.get("division").toString() : "";
 			confirmpwd = result.containsKey("confirmpwd") ? result.get("confirmpwd").toString() : null;
 			isactive = result.containsKey("isactive") ? Integer.parseInt(result.get("isactive").toString()) : 0;
+			String decodeToken = Util.decodeToken(userdetails);
+			createdBy = (String) MyObjectMapper.getInstance().readValue(decodeToken, HashMap.class).get("sub");
 
 			// Validate request
 			if (Validation.IsEmpty(userid)) {
@@ -164,6 +141,132 @@ public class UserServiceImpl implements IAppConstant, IErrorConstant, IUser, IDa
 			// Error" + ex.getMessage());
 		}
 		// TODO Auto-generated method stub
+		return responseModel;
+	}
+
+
+	@Override
+	public ResponseModel getAll() {
+		ResponseModel responseModel = ResponseModel.getInstance();
+
+		try {
+			AppDTO appDTO_ = AppDTO.getInstance();
+			Map<String,Object>inputMap = new HashMap<>();
+
+			inputMap.put("process", "get_users");
+			
+		
+			List<Map<String, Object>> out = appDTO_.getData(inputMap, jdbcTemplate, USERS);
+
+			if (out == null) {
+				responseModel.setStatus(ERROR);
+				responseModel.setData(WENTWRONG);
+			} else {
+
+				responseModel.setData(out);
+				responseModel.setStatus(SUCCESS);
+
+				return responseModel;
+
+			}
+
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+			responseModel.setStatus(ERROR);
+			responseModel.setData(WENTWRONG);
+		}
+		return responseModel;
+	}
+
+	@Override
+	public ResponseModel getById(String input, String userdetails) {
+		ResponseModel responseModel = ResponseModel.getInstance();
+
+		try {
+
+			int id;
+	
+			ObjectMapper objectMapper = MyObjectMapper.getInstance();
+
+			Map<String, Object> inputMap = objectMapper.readValue(input, HashMap.class);
+			id = inputMap.containsKey("id") ? Integer.parseInt(String.valueOf(inputMap.get("id"))) : 0;
+
+
+			if (!Validation.IsNumeric(id)) {
+				responseModel.setStatus(ERROR);
+				responseModel.setData(INVALID_ID);
+				return responseModel;
+
+			}
+			
+			AppDTO appDTO_ = AppDTO.getInstance();
+			inputMap = new HashMap<>();
+
+			inputMap.put("process", "get_userbyid");
+			inputMap.put("id", id);
+			
+
+			List<Map<String, Object>> out = appDTO_.getData(inputMap, jdbcTemplate, USERS);
+
+			if (out == null) {
+				responseModel.setStatus(ERROR);
+				responseModel.setData(WENTWRONG);
+			} else {
+
+				responseModel.setData(out);
+				responseModel.setStatus(SUCCESS);
+
+				return responseModel;
+
+			}
+
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+			responseModel.setStatus(ERROR);
+			responseModel.setData(WENTWRONG);
+		}
+		return responseModel;
+	}
+
+	@Override
+	public ResponseModel getByName(String input, String userdetails) {
+		ResponseModel responseModel = ResponseModel.getInstance();
+
+		try {
+
+			String userName;
+	
+			ObjectMapper objectMapper = MyObjectMapper.getInstance();
+
+			Map<String, Object> inputMap = objectMapper.readValue(input, HashMap.class);
+			userName = inputMap.containsKey("userName") ? String.valueOf(inputMap.get("userName")) : "";
+		
+			AppDTO appDTO_ = AppDTO.getInstance();
+			inputMap = new HashMap<>();
+
+			inputMap.put("process", "get_ByName");
+			inputMap.put("name", userName);
+			
+
+			List<Map<String, Object>> out = appDTO_.getData(inputMap, jdbcTemplate, USERS);
+
+			if (out == null) {
+				responseModel.setStatus(ERROR);
+				responseModel.setData(DATA_NOT_FOUND);
+			} else {
+
+				responseModel.setData(out);
+				responseModel.setStatus(SUCCESS);
+
+				return responseModel;
+
+			}
+
+		} catch (Exception ex) {
+			System.out.println(ex.getMessage());
+			responseModel.setStatus(ERROR);
+			responseModel.setData(WENTWRONG);
+		}
 		return responseModel;
 	}
 

@@ -11,4 +11,5 @@ public interface IErrorConstant {
 	public static final String INVALID_CATCODE = "Invalid category";
 	public static final String INVALID_NAME = "Invalid user name";
 	public static final String INVALID_SENIOR = "Invalid senior";
+	public static final String INVALID_ID = "Invalid id";
 }

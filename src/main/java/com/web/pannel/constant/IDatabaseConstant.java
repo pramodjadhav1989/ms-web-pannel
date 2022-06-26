@@ -9,6 +9,7 @@ public interface IDatabaseConstant {
 	
 	
 	public static final String CATEGORY="category";
+	public static final String HEAD="head";
 	public static final String USERS="user";
 	public static final String MENU="menu";
 	public static final String MENUHEADER="menuheader";
