@@ -37,6 +37,11 @@ public class MenuController {
 		return menuService.getByName(input,token);
 	}
 	
+	@RequestMapping(value = "/menu/getMenu", method = RequestMethod.GET)
+	public ResponseModel getMenu(@RequestHeader(name="Authorization") String token) throws Exception {
+		return menuService.getMenu(token);
+	}
+	
 	@RequestMapping(value = "/menu/getByCatcode", method = RequestMethod.POST)
 	public ResponseModel getByCatCode(@RequestBody String input ,@RequestHeader(name="Authorization") String token) throws Exception {
 		return menuService.getByCatcode(input,token);

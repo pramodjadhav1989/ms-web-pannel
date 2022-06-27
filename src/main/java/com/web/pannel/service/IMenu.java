@@ -9,4 +9,7 @@ public interface IMenu {
 	public ResponseModel getById(String input, String userdetails);
 	public ResponseModel getByName(String input, String userdetails);
 	public ResponseModel getByCatcode(String input, String userdetails);
+	public ResponseModel getMenu(String userdetails);
+	
+	
 }
